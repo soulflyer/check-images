@@ -1,20 +1,18 @@
 # check-images
 
-FIXME: description
+Check that all the images in an image collection are present in a given directory.
 
 ## Installation
 
-Download from http://example.com/FIXME.
+Download from https://github.com/soulflyer/check-images
 
 ## Usage
 
-FIXME: explanation
-
-    $ java -jar check-images-0.1.0-standalone.jar [args]
+~/bin/check-images
 
 ## Options
 
-FIXME: listing of options this app accepts.
+use check-images -h for the current set of options.
 
 ## Examples
 
@@ -24,13 +22,9 @@ FIXME: listing of options this app accepts.
 
 ...
 
-### Any Other Sections
-### That You Think
-### Might be Useful
-
 ## License
 
-Copyright © 2015 FIXME
+Copyright © 2015 Iain Wood
 
-Distributed under the Eclipse Public License either version 1.0 or (at
-your option) any later version.
+Distributed under the Eclipse Public License either version 1.0
+

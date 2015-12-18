@@ -53,7 +53,8 @@
   )
 
 (defn -main
-  "I don't do a whole lot ... yet."
+  "Given a directory, ie Pictures/thumbs , checks if all the pics in the image collection
+  are present in that directory"
   [& args]
   (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)
         connection (mg/connect)
