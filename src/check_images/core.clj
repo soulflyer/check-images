@@ -35,6 +35,13 @@
       (subs filename index-slash index-dot)
       filename)))
 
+(defn project-name
+  [filename]
+  (let [index-slash (.lastIndexOf filename "/")]
+    (if (< 0 index-slash)
+      (subs filename 0 index-slash)
+      filename)))
+
 (defn file-exists?
   [path]
   (let [file (java.io.File. path)]
@@ -67,6 +74,8 @@
       (count (mc/find-maps db im))
       (:count options)
       (count (missing-files db im (first arguments) find-function))
+      (:summary options)
+      (set (map project-name (missing-files db im (first arguments) find-function)))
       (:help options)
       (println (str "Usage:\ncheck-images [options] keyword\n\noptions:\n" summary))
       :else
