@@ -71,12 +71,16 @@
 
     (cond
       (:total options)
-      (count (mc/find-maps db im))
+      (println (count (mc/find-maps db im)))
       (:count options)
-      (count (missing-files db im (first arguments) find-function))
+      (println (count (missing-files db im (first arguments) find-function)))
       (:summary options)
-      (set (map project-name (missing-files db im (first arguments) find-function)))
+      (doall
+       (map
+        println
+        (set (map project-name (missing-files db im (first arguments) find-function)))))
       (:help options)
       (println (str "Usage:\ncheck-images [options] keyword\n\noptions:\n" summary))
       :else
-      (missing-files db im (first arguments) find-function))))
+      (doall
+       (map println (missing-files db im (first arguments) find-function))))))
