@@ -10,10 +10,11 @@
     :default "soulflyer"]
    ["-i" "--image-collection IMAGE-COLLECTION" "specifies the image collection"
     :default "images"]
-   ["-c" "--count" "returns the number of images not found"]
-   ["-t" "--total" "returns the total number of images in the database collection"]
-   ["-s" "--summary" "returns a list of projects containing missing images"]
-   ["-x" "--lax" "Searches for any files with the same basename"]
+   ["-c" "--count"    "returns the number of images not found"]
+   ["-t" "--total"    "returns the total number of images in the database collection"]
+   ["-s" "--summary"  "returns a list of projects containing missing images"]
+   ["-x" "--lax"      "Matches any files with the same basename"]
+   ["-X" "--very-lax" "Matches any file that starts with the same string"]
    ["-h" "--help"]])
 
 ;; (defn image-paths
@@ -54,6 +55,15 @@
         files (.list dir)]
     (if (some #{(basename path)} (seq (map basename files))) true false)))
 
+(defn loosely-related-file-exists?
+  [path]
+  (let [file (java.io.File. path)
+        dir  (.getParentFile file)
+        files (.list dir)]
+    (if (< 0 (count (filter #(re-find (re-pattern %) path) (map basename files))))
+      true
+      false)))
+
 (defn missing-files
   [database image-collection root-path find-function]
   (remove (fn [im] (find-function (str root-path "/" im))) (image-paths database image-collection))
@@ -67,7 +77,13 @@
         connection (mg/connect)
         db (mg/get-db connection (:database options))
         im (:image-collection options)
-        find-function (if (:lax options) related-file-exists? file-exists?)]
+        find-function (cond
+                        (:lax options)
+                        related-file-exists?
+                        (:very-lax options)
+                        loosely-related-file-exists?
+                        :else
+                        file-exists?)]
 
     (cond
       (:total options)
@@ -78,7 +94,7 @@
       (doall
        (map
         println
-        (set (map project-name (missing-files db im (first arguments) find-function)))))
+        (sort (set (map project-name (missing-files db im (first arguments) find-function))))))
       (:help options)
       (println (str "Usage:\ncheck-images [options] keyword\n\noptions:\n" summary))
       :else
