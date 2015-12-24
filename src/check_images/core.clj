@@ -56,13 +56,15 @@
     (if (some #{(basename path)} (seq (map basename files))) true false)))
 
 (defn loosely-related-file-exists?
+  "given a pathname to a file, checks if any variant of the file exists
+  (loosely-related-file exists? /home/me/picture/abc.jpg
+  will return true if any file exists in /home/me/pictures  that starts with abc
+  ie: abc.jpg abc.png, abc-version2.jpg etc."
   [path]
   (let [file (java.io.File. path)
         dir  (.getParentFile file)
         files (.list dir)]
-    (if (< 0 (count (filter #(re-find (re-pattern %) path) (map basename files))))
-      true
-      false)))
+    (< 0 (count (filter #(re-find (re-pattern %) path) (map basename files))))))
 
 (defn missing-files
   [database image-collection root-path find-function]
