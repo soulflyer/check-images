@@ -1,8 +1,12 @@
 (ns check-images.core
   (:require [clojure.tools.cli :refer :all]
             [monger.collection :as mc]
-            [monger.core :as mg])
-  (:use     [find-images.core :exclude [-main cli-options]])
+            [monger.core :as mg]
+            [image-lib.core    :refer [find-images
+                                       find-images-containing
+                                       find-sub-keywords
+                                       image-path]])
+
   (:gen-class))
 
 (def cli-options
@@ -98,7 +102,7 @@
         println
         (sort (set (map project-name (missing-files db im (first arguments) find-function))))))
       (:help options)
-      (println (str "Usage:\ncheck-images [options] keyword\n\noptions:\n" summary))
+      (println (str "Usage:\ncheck-images [options] path\ncheck-images -t\n\noptions:\n" summary))
       :else
       (doall
        (map println (missing-files db im (first arguments) find-function))))))
