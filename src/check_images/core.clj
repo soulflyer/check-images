@@ -5,8 +5,14 @@
             [image-lib.core    :refer [find-images
                                        find-images-containing
                                        find-sub-keywords
-                                       image-path]])
-
+                                       image-path
+                                       image-paths
+                                       basename
+                                       project-name
+                                       file-exists?
+                                       related-file-exists?
+                                       loosely-related-file-exists?
+                                       missing-files]])
   (:gen-class))
 
 (def cli-options
@@ -21,59 +27,6 @@
    ["-X" "--very-lax" "Matches any file that starts with the same string"]
    ["-h" "--help"]])
 
-;; (defn image-paths
-;;   [database image-collection]
-;;   (let [connection (mg/connect)
-;;         db (mg/get-db connection database)]
-;;     (map image-path (mc/find-maps db image-collection {}))))
-
-(defn image-paths
-  [db image-collection]
-  (map image-path (mc/find-maps db image-collection {})))
-
-(defn basename
-  "Cuts the extension off the end of a string"
-  [filename]
-  (let [index-dot (.lastIndexOf filename ".")
-        index-slash (+ 1 (.lastIndexOf filename "/"))]
-    (if (< 0 index-dot)
-      (subs filename index-slash index-dot)
-      filename)))
-
-(defn project-name
-  [filename]
-  (let [index-slash (.lastIndexOf filename "/")]
-    (if (< 0 index-slash)
-      (subs filename 0 index-slash)
-      filename)))
-
-(defn file-exists?
-  [path]
-  (let [file (java.io.File. path)]
-    (.exists file)))
-
-(defn related-file-exists?
-  [path]
-  (let [file (java.io.File. path)
-        dir  (.getParentFile file)
-        files (.list dir)]
-    (if (some #{(basename path)} (seq (map basename files))) true false)))
-
-(defn loosely-related-file-exists?
-  "given a pathname to a file, checks if any variant of the file exists
-  (loosely-related-file exists? /home/me/picture/abc.jpg
-  will return true if any file exists in /home/me/pictures  that starts with abc
-  ie: abc.jpg abc.png, abc-version2.jpg etc."
-  [path]
-  (let [file (java.io.File. path)
-        dir  (.getParentFile file)
-        files (.list dir)]
-    (< 0 (count (filter #(re-find (re-pattern %) path) (map basename files))))))
-
-(defn missing-files
-  [database image-collection root-path find-function]
-  (remove (fn [im] (find-function (str root-path "/" im))) (image-paths database image-collection))
-  )
 
 (defn -main
   "Given a directory, ie Pictures/thumbs , checks if all the pics in the image collection
