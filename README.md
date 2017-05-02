@@ -8,7 +8,9 @@ Download from https://github.com/soulflyer/check-images
 
 ## Usage
 
-~/bin/check-images
+~/bin/check-images ~/Pictures/Published/thumbs
+
+This will check that all the images in the default database/image collection are present in the thumbs directory.
 
 ## Options
 
