@@ -23,7 +23,7 @@ use check-images -h for the current set of options.
 
 ### Bugs
 
-...
+The -X option doesn't exactly do what it should.
 
 ## License
 
