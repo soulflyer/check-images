@@ -8,6 +8,7 @@
                  [com.novemberain/monger "3.0.1"]
                  [image-lib "0.1.0-SNAPSHOT"]
                  [org.slf4j/slf4j-nop "1.7.12"]]
+  :plugins [[lein-bin "0.3.4"]]
   :main ^:skip-aot check-images.core
   :profiles {:uberjar {:aot :all}}
   :bin {:name "check-images"

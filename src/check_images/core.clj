@@ -17,7 +17,7 @@
 
 (def cli-options
   [["-d" "--database DATABASE" "specifies database to use"
-    :default "soulflyer"]
+    :default "photos"]
    ["-i" "--image-collection IMAGE-COLLECTION" "specifies the image collection"
     :default "images"]
    ["-c" "--count"    "returns the number of images not found"]
