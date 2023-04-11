@@ -2,17 +2,9 @@
   (:require [clojure.tools.cli :refer :all]
             [monger.collection :as mc]
             [monger.core :as mg]
-            [image-lib.core    :refer [find-images
-                                       find-images-containing
-                                       find-sub-keywords
-                                       image-path
-                                       image-paths
-                                       basename
-                                       project-name
-                                       file-exists?
-                                       related-file-exists?
-                                       loosely-related-file-exists?
-                                       missing-files]])
+            [image-lib.helper :refer [project-name]]
+            [image-lib.file :as ilf]
+            [image-lib.images :as ili])
   (:gen-class))
 
 (def cli-options
@@ -25,37 +17,48 @@
    ["-s" "--summary"  "returns a list of projects containing missing images"]
    ["-x" "--lax"      "Matches any files with the same basename"]
    ["-X" "--very-lax" "Matches any file that starts with the same string"]
-   ["-h" "--help"]])
+   ["-h" "--help"]
+   ["-H" "--host HOST" "sets the db host" :default "localhost"]
+   ["-p" "--port PORT" "sets the db port" :default 27017]])
 
 
 (defn -main
   "Given a directory, ie Pictures/thumbs , checks if all the pics in the image collection
   are present in that directory"
   [& args]
-  (let [{:keys [options arguments errors summary]} (parse-opts args cli-options)
-        connection (mg/connect)
-        db (mg/get-db connection (:database options))
+  (let [{:keys [options arguments summary]} (parse-opts args cli-options)
+        db (mg/get-db (mg/connect {:host (:host options) :port (:port options)}) (:database options))
         im (:image-collection options)
+        all-images (ili/all-image-paths db im)
+        picture-directory (first arguments)
         find-function (cond
                         (:lax options)
-                        related-file-exists?
+                        ilf/related-file-exists?
                         (:very-lax options)
-                        loosely-related-file-exists?
+                        ilf/loosely-related-file-exists?
                         :else
-                        file-exists?)]
-
+                        ilf/file-exists?)]
     (cond
       (:total options)
       (println (count (mc/find-maps db im)))
       (:count options)
-      (println (count (missing-files db im (first arguments) find-function)))
+      (println (count (ilf/missing-files all-images picture-directory find-function)))
       (:summary options)
       (doall
        (map
         println
-        (sort (set (map project-name (missing-files db im (first arguments) find-function))))))
+        (sort (set (map project-name (ilf/missing-files all-images picture-directory find-function))))))
       (:help options)
       (println (str "Usage:\ncheck-images [options] path\ncheck-images -t\n\noptions:\n" summary))
       :else
       (doall
-       (map println (missing-files db im (first arguments) find-function))))))
+        (map println (ilf/missing-files all-images picture-directory find-function))))))
+
+(comment
+  (count (mc/find-maps (mg/get-db (mg/connect {:host "subversion.local"}) "photos") "images"))
+  (count (mc/find-maps (mg/get-db (mg/connect {:host "localhost"}) "photos") "images"))
+  (ili/all-image-paths (mg/get-db (mg/connect {:host "localhost"}) "photos") "images")
+  (ilf/missing-files (ili/all-image-paths (mg/get-db (mg/connect {:host "localhost"}) "photos") "images") "/Users/iain/Pictures/Published/small" ilf/file-exists?)
+  (-main "-Hlocalhost" "-t")
+  (-main "-Hsubversion.local" "-t")
+  )
